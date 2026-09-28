@@ -16,16 +16,24 @@ private const val FRAME_X_ICON_WEBP_BASE64 = "UklGRgQXAABXRUJQVlA4IPgWAAAwYwCdAS
 @Composable
 fun FrameXLogo(modifier: Modifier = Modifier) {
   val bitmap = remember {
-    BitmapFactory.decodeByteArray(
-      Base64.decode(FRAME_X_ICON_WEBP_BASE64, Base64.DEFAULT),
-      0,
-      Base64.decode(FRAME_X_ICON_WEBP_BASE64, Base64.DEFAULT).size
-    ).asImageBitmap()
+    runCatching {
+      val bytes = Base64.decode(FRAME_X_ICON_WEBP_BASE64, Base64.DEFAULT)
+      BitmapFactory.decodeByteArray(bytes, 0, bytes.size)?.asImageBitmap()
+    }.getOrNull()
   }
-  Image(
-    bitmap = bitmap,
-    contentDescription = "FRAME X AI official logo mark",
-    modifier = modifier.size(64.dp),
-    contentScale = ContentScale.Fit
-  )
+  if (bitmap != null) {
+    Image(
+      bitmap = bitmap,
+      contentDescription = "FRAME X AI official logo mark",
+      modifier = modifier.size(64.dp),
+      contentScale = ContentScale.Fit
+    )
+  } else {
+    androidx.compose.material3.Text(
+      "FX",
+      modifier = modifier.size(64.dp),
+      color = androidx.compose.material3.MaterialTheme.colorScheme.primary,
+      style = androidx.compose.material3.MaterialTheme.typography.headlineMedium
+    )
+  }
 }
