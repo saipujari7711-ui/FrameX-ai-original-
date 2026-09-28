@@ -73,9 +73,16 @@ class DriveSyncWorker(context:Context,params:WorkerParameters):CoroutineWorker(c
             val parent=structure.folders[item.parentKey] ?: structure.folders["Other"] ?: continue
             val uri=Uri.fromFile(file)
             runCatching {
-                service.upload(token,uri,parent,item.fileName,item.mimeType,props=mapOf(
-                    "framexType" to "chat","framexId" to item.id,"framexRevision" to item.revision.toString()
-                ))
+                val props=mapOf(
+                    "framexType" to "chat",
+                    "framexId" to item.id,
+                    "framexRevision" to item.revision.toString()
+                )
+                val existing=service.findByAppProperty(token,"framexId",item.id)
+                service.upload(token,uri,parent,item.fileName,item.mimeType,existingId=existing?.id,props=props)
+                if(existing != null && existing.parents.firstOrNull() != parent) {
+                    service.move(token,existing.id,parent)
+                }
             }.onSuccess { queue.remove(item.id) }.onFailure { return ListenableWorker.Result.retry() }
         }
         return ListenableWorker.Result.success()
