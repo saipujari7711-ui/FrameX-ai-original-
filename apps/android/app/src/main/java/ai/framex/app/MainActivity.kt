@@ -19,9 +19,11 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -278,6 +280,7 @@ private fun FrameXApp(context: Context) {
                         Destination.HISTORY -> "Chat history"
                         Destination.MEMORY -> "Memory"
                         Destination.SETTINGS -> "Settings"
+                        else -> "FrameX AI"
                     },
                     onMenu = { scope.launch { drawerState.open() } },
                     onNewChat = ::newChat
@@ -1172,7 +1175,7 @@ private fun SettingsWorkspace(
     LazyColumn(
         Modifier.fillMaxSize().padding(horizontal = 16.dp),
         verticalArrangement = Arrangement.spacedBy(10.dp),
-        contentPadding = PaddingValues(vertical = 12.dp, bottom = 28.dp)
+        contentPadding = PaddingValues(start = 0.dp, top = 12.dp, end = 0.dp, bottom = 28.dp)
     ) {
         item {
             Text("Settings", style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.SemiBold)
