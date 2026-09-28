@@ -142,7 +142,7 @@ function Chat() {
             <p>Absolutely. The product should make the underlying complexity feel <strong>quiet</strong> while keeping the user in control.</p>
             <h4>A useful design principle</h4><p><em>Expose decisions, hide implementation noise.</em></p>
             <ul><li>Show the provider and model when it matters.</li><li>Keep routing explanations concise.</li><li>Make sync state visible without turning it into infrastructure UI.</li></ul>
-            <pre><code>{"routing.mode = \\"automatic\\"\\ncapability.state = \\"known\\""}</code></pre>
+            <pre><code>{`routing.mode = "automatic"\ncapability.state = "known"`}</code></pre>
             <div className="message-actions"><button>Copy</button><button>Regenerate</button><button>Retry</button></div>
           </div>
         </div>
