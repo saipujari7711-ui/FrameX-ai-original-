@@ -1,0 +1,25 @@
+# FRAME X AI
+.env
+.env.*
+!.env.example
+*.keystore
+*.jks
+*.p12
+*.pem
+google-services.json
+GoogleService-Info.plist
+.gradle/
+**/build/
+local.properties
+.cxx/
+.externalNativeBuild/
+node_modules/
+.next/
+out/
+coverage/
+*.tsbuildinfo
+.idea/
+*.iml
+.vscode/
+.DS_Store
+Thumbs.db
