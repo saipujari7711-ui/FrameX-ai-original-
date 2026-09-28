@@ -6,5 +6,10 @@
   "dependencies": {
     "@frame-x/contracts": "workspace:*",
     "@frame-x/provider-core": "workspace:*"
+  },
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "exports": {
+    ".": "./src/index.ts"
   }
 }
