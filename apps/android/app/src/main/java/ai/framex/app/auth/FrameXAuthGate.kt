@@ -8,10 +8,12 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import ai.framex.app.drive.DriveStructure
 import ai.framex.app.drive.GoogleDriveService
+import ai.framex.app.drive.DriveSyncQueue
 import ai.framex.app.ui.GoogleSignInScreen
 import ai.framex.app.ui.FrameXAuthenticatedContent
 import kotlinx.coroutines.launch
@@ -37,7 +39,7 @@ fun FrameXAuthGate(context: android.content.Context) {
             busy = true
             error = null
             runCatching { drive.ensureStructure(accessToken) }
-                .onSuccess { structure = it; initialized = true }
+                .onSuccess { structure = it; DriveSyncQueue(context).kick(); initialized = true }
                 .onFailure {
                     if (it is ai.framex.app.drive.DriveApiException && it.status == 401) auth.clearAccessToken(accessToken)
                     error = it.message ?: "Drive connection failed."
