@@ -113,7 +113,7 @@ fun DriveWorkspace(
             dismissButton={TextButton(onClick={selected=null}){Text("Close")}},
             confirmButton={
                 Row {
-                    TextButton(onClick={downloadLauncher.launch(file.name);selected=file}){Text("Download")}
+                    TextButton(onClick={downloadLauncher.launch(file.mimeType);selected=file}){Text("Download")}
                     TextButton(onClick={renameTarget=file;renameValue=file.name;selected=null}){Text("Rename")}
                     TextButton(onClick={moveTarget=file;selected=null}){Text("Move")}
                     TextButton(onClick={deleteTarget=file;selected=null}){Text("Delete")}
