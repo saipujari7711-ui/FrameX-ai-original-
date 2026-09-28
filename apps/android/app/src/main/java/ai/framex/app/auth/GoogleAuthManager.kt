@@ -49,7 +49,7 @@ class GoogleAuthManager(private val context: Context) {
 
         val googleCredential = GoogleIdTokenCredential.createFrom(credential.data)
         val account = GoogleAccount(
-            email = googleCredential.id,
+            email = googleCredential.email ?: googleCredential.uniqueId,
             displayName = googleCredential.displayName,
             photoUrl = googleCredential.profilePictureUri?.toString()
         )
