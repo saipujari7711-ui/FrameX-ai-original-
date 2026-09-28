@@ -8,17 +8,17 @@ type Screen =
 
 type Provider = {
   name: string;
-  state: "Connected" | "Needs key";
+  state: "Connected" | "Needs key" | "Not configured";
   keys: number;
   models: number;
   accent: string;
 };
 
 const providers: Provider[] = [
-  { name: "OpenAI", state: "Connected", keys: 2, models: 18, accent: "cyan" },
-  { name: "Google Gemini", state: "Needs key", keys: 0, models: 0, accent: "gold" },
-  { name: "Groq", state: "Connected", keys: 1, models: 12, accent: "green" },
-  { name: "Anthropic", state: "Needs key", keys: 0, models: 0, accent: "wine" }
+  { name: "OpenAI", state: "Not configured", keys: 0, models: 0, accent: "cyan" },
+  { name: "Google Gemini", state: "Not configured", keys: 0, models: 0, accent: "gold" },
+  { name: "Groq", state: "Not configured", keys: 0, models: 0, accent: "green" },
+  { name: "Anthropic", state: "Not configured", keys: 0, models: 0, accent: "wine" }
 ];
 
 const nav: { id: Screen; label: string; glyph: string }[] = [
@@ -86,9 +86,9 @@ function Home({ go }: { go: (screen: Screen) => void }) {
       </section>
       <div className="section-label">Workspace pulse</div>
       <section className="stat-grid">
-        <article className="stat-card"><span>Connected providers</span><strong>2</strong><small>OpenAI · Groq</small></article>
-        <article className="stat-card"><span>Saved conversations</span><strong>48</strong><small>Across 5 categories</small></article>
-        <article className="stat-card"><span>Drive sync</span><strong>Ready</strong><small>Last synced 7 min ago</small></article>
+        <article className="stat-card"><span>Connected providers</span><strong>0</strong><small>Connect providers to begin</small></article>
+        <article className="stat-card"><span>Saved conversations</span><strong>0</strong><small>Local conversations appear here</small></article>
+        <article className="stat-card"><span>Drive sync</span><strong>Not connected</strong><small>Google Drive is not configured</small></article>
         <article className="stat-card"><span>Current mode</span><strong>Automatic</strong><small>Capability-aware routing</small></article>
       </section>
       <section className="content-grid content-grid--two">
@@ -132,7 +132,7 @@ function Chat() {
           <IconButton label="More chat actions">⋯</IconButton>
         </div>
       </div>
-      <div className="model-strip"><span className="model-spark">✦</span><span><b>Using OpenAI</b><small>GPT-5.6 · {mode === "automatic" ? "Automatically selected for this task" : "Manual selection"}</small></span><button className="text-button">Change model</button></div>
+      <div className="model-strip"><span className="model-spark">✦</span><span><b>Model not selected</b><small>{mode === "automatic" ? "Automatic routing waits for a compatible configured provider" : "Choose a configured model"}</small></span><button className="text-button">Change model</button></div>
       <div className="chat-thread" aria-live="polite">
         <div className="chat-date">Today · 07:18</div>
         <div className="message message--user"><div className="message-label">YOU</div><div className="bubble bubble--user">Help me structure the next phase of FRAME X AI around the user experience without touching the provider core.</div></div>
@@ -152,7 +152,7 @@ function Chat() {
       <div className="composer">
         <div className="composer-tools"><IconButton label="Attach file" onClick={() => setNotice("Attachment picker is ready for the next integration step.")}>＋</IconButton><IconButton label="Voice input" onClick={() => setNotice("Voice interface is capability-gated; connect a provider that supports audio input.")}>◉</IconButton></div>
         <textarea value={input} onChange={e => setInput(e.target.value)} placeholder={taskMode ? "Describe the challenge..." : "Ask FRAME X anything..."} aria-label="Message" />
-        <button className="send-button" aria-label="Send message" onClick={() => setNotice(input.trim() ? "Message is staged in the UI. Provider execution remains behind the existing AI gateway." : "Write a message first.")}>↑</button>
+        <button className="send-button" aria-label="Send message" onClick={() => setNotice(input.trim() ? "No provider is connected to this chat surface yet. Your message was not sent." : "Write a message first.")}>↑</button>
       </div>
       <div className="composer-meta"><span>AI output can be reviewed before it is saved to your workspace.</span><span>Enter ↵ · Shift+Enter newline</span></div>
     </div>
@@ -181,12 +181,12 @@ function Models() {
 }
 
 function Drive() {
-  const [connected, setConnected] = useState(true);
-  return <div className="screen"><ScreenHeading eyebrow="STORAGE / GOOGLE DRIVE" title="Your sync layer" copy="Drive is user-owned storage. FRAME X keeps local work usable offline and surfaces conflicts instead of silently overwriting." /><div className="drive-hero"><div className="drive-icon">↕</div><div><StatusPill tone={connected ? "green" : "gold"}>{connected ? "Connected" : "Needs authorization"}</StatusPill><h2>{connected ? "Everything is in sync." : "Connect Google Drive."}</h2><p>{connected ? "Last synchronized 7 minutes ago · 48 chats · 12 attachments" : "Authorize access to create the FRAME X AI folder structure."}</p></div><button className="button button--outline" onClick={() => setConnected(v => !v)}>{connected ? "Disconnect" : "Connect Drive"}</button></div><div className="sync-states"><article><span>↕</span><b>Syncing</b><small>Use for active progress</small></article><article><span>◌</span><b>Offline</b><small>Local changes remain available</small></article><article className="sync-state--conflict"><span>!</span><b>Conflict detected</b><small>Review both revisions</small></article></div></div>;
+  const [connected, setConnected] = useState(false);
+  return <div className="screen"><ScreenHeading eyebrow="STORAGE / GOOGLE DRIVE" title="Your sync layer" copy="Drive is user-owned storage. FRAME X keeps local work usable offline and surfaces conflicts instead of silently overwriting." /><div className="drive-hero"><div className="drive-icon">↕</div><div><StatusPill tone={connected ? "green" : "gold"}>{connected ? "Connected" : "Needs authorization"}</StatusPill><h2>{connected ? "Everything is in sync." : "Connect Google Drive."}</h2><p>{connected ? "No synchronization has been performed" : "Authorize access to create the FRAME X AI folder structure."}</p></div><button className="button button--outline" onClick={() => setConnected(v => !v)}>{connected ? "Disconnect" : "Connect Drive"}</button></div><div className="sync-states"><article><span>↕</span><b>Syncing</b><small>Use for active progress</small></article><article><span>◌</span><b>Offline</b><small>Local changes remain available</small></article><article className="sync-state--conflict"><span>!</span><b>Conflict detected</b><small>Review both revisions</small></article></div></div>;
 }
 
 function Settings() {
-  return <div className="screen"><ScreenHeading eyebrow="SYSTEM / SETTINGS" title="Settings" copy="Keep the product calm. Put technical controls where they can be understood and changed deliberately." /><div className="settings-list">{[["Appearance","Dark environment · reduced motion available","›"],["Routing","Automatic · capability-aware","›"],["API keys","3 stored securely on this device","›"],["Google Drive","Connected · last sync 7 min ago","›"],["Privacy & security","Local-first · no secret logging","›"],["Accessibility","Scalable type · keyboard · screen reader","›"]].map(([title, desc, arrow]) => <button className="setting-row" key={title}><span><b>{title}</b><small>{desc}</small></span><span>{arrow}</span></button>)}</div></div>;
+  return <div className="screen"><ScreenHeading eyebrow="SYSTEM / SETTINGS" title="Settings" copy="Keep the product calm. Put technical controls where they can be understood and changed deliberately." /><div className="settings-list">{[["Appearance","Dark environment · reduced motion available","›"],["Routing","Automatic · capability-aware","›"],["API keys","No provider credentials configured","›"],["Google Drive","Not connected","›"],["Privacy & security","Local-first · no secret logging","›"],["Accessibility","Scalable type · keyboard · screen reader","›"]].map(([title, desc, arrow]) => <button className="setting-row" key={title}><span><b>{title}</b><small>{desc}</small></span><span>{arrow}</span></button>)}</div></div>;
 }
 
 function Generic({ screen }: { screen: Screen }) {
@@ -210,7 +210,7 @@ export default function HomePage() {
       <Brand />
       <div className="sidebar-section"><span className="sidebar-label">Workspace</span>{nav.map(item => <button key={item.id} className={screen === item.id ? "nav-item active" : "nav-item"} onClick={() => go(item.id)}><span>{item.glyph}</span>{item.label}{item.id === "chat" && <kbd>N</kbd>}</button>)}</div>
       <div className="sidebar-section"><span className="sidebar-label">System</span>{moreNav.map(item => <button key={item.id} className={screen === item.id ? "nav-item active" : "nav-item"} onClick={() => go(item.id)}><span>{item.glyph}</span>{item.label}</button>)}</div>
-      <div className="sidebar-bottom"><div className="sync-mini"><span className="sync-ring">↕</span><span><b>Drive connected</b><small>Synced 7 min ago</small></span></div><button className="profile-mini" onClick={() => go("profile")}><span className="avatar">S</span><span><b>Sairaj</b><small>Personal workspace</small></span><span>···</span></button></div>
+      <div className="sidebar-bottom"><div className="sync-mini"><span className="sync-ring">↕</span><span><b>Drive not connected</b><small>Synchronization unavailable</small></span></div><button className="profile-mini" onClick={() => go("profile")}><span className="avatar">S</span><span><b>Sairaj</b><small>Personal workspace</small></span><span>···</span></button></div>
     </aside>
     <main className="main-area">
       <header className="topbar"><button className="mobile-menu" onClick={() => setSidebarOpen(v => !v)} aria-label="Open navigation">☰</button><Brand compact /><div className="topbar-actions"><button className="global-search" onClick={() => go("search")}><span>⌕</span><span>Search workspace</span><kbd>⌘ K</kbd></button><IconButton label="Notifications">◌</IconButton><button className="avatar avatar--top" onClick={() => go("profile")}>S</button></div></header>
