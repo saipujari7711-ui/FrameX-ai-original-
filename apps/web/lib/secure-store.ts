@@ -43,7 +43,8 @@ export async function securePut(id: string, value: string): Promise<void> {
   const key = await loadOrCreateKey();
   const iv = crypto.getRandomValues(new Uint8Array(12));
   const encoded = new TextEncoder().encode(value);
-  const ciphertext = await crypto.subtle.encrypt({ name: "AES-GCM", iv }, key, encoded);
+  const ivBuffer = iv.buffer.slice(iv.byteOffset, iv.byteOffset + iv.byteLength) as ArrayBuffer;
+  const ciphertext = await crypto.subtle.encrypt({ name: "AES-GCM", iv: ivBuffer }, key, encoded);
 
   const db = await openDb();
   await new Promise<void>((resolve, reject) => {
@@ -66,8 +67,9 @@ export async function secureGet(id: string): Promise<string | null> {
   db.close();
   if (!record) return null;
 
+  const iv = record.iv.buffer.slice(record.iv.byteOffset, record.iv.byteOffset + record.iv.byteLength) as ArrayBuffer;
   const plaintext = await crypto.subtle.decrypt(
-    { name: "AES-GCM", iv: record.iv },
+    { name: "AES-GCM", iv },
     key,
     record.ciphertext
   );
