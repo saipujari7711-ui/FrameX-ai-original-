@@ -101,7 +101,7 @@ class GoogleDriveService(private val resolver: ContentResolver) {
         check(c); parse(JSONObject(c.inputStream.bufferedReader().readText()))
     }
 
-    private suspend fun findProperty(token:String,key:String,value:String):DriveFile?=withContext(Dispatchers.IO){
+    suspend fun findByAppProperty(token:String,key:String,value:String):DriveFile?=withContext(Dispatchers.IO){
         val q=URLEncoder.encode("trashed = false and appProperties has { key='"+key+"' and value='"+value+"' }","UTF-8")
         val f=URLEncoder.encode("files(id,name,mimeType,parents,modifiedTime,size,trashed,appProperties,capabilities)","UTF-8")
         val c=conn(API+"/files?q="+q+"&spaces=drive&pageSize=20&fields="+f,"GET",token); check(c)
@@ -118,7 +118,7 @@ class GoogleDriveService(private val resolver: ContentResolver) {
     }
 
     suspend fun ensureStructure(token:String):DriveStructure{
-        var root=findProperty(token,"framexType","root")
+        var root=findByAppProperty(token,"framexType","root")
         if(root==null) root=list(token,parentId="root",search=ROOT_NAME).first.firstOrNull { it.name==ROOT_NAME && it.isFolder }
         val rootFile=root ?: createFolder(token,ROOT_NAME,"root",mapOf("framexType" to "root"))
         val ids=mutableMapOf<String,String>()
