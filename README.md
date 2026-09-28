@@ -41,3 +41,7 @@ Secrets are never committed to source control. API credentials are runtime user 
 ## Brand
 
 The supplied FRAME X AI logo is the authoritative brand asset. Derived technical assets must preserve the supplied artwork and identity.
+
+
+## Android verification
+The Android implementation is validated through the repository CI pipeline before release artifacts are considered verified.
