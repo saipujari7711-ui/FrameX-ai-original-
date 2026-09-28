@@ -81,8 +81,9 @@ class FrameXEngine(private val context:Context) {
     }
   }
 
-  fun route(text:String,mode:FrameMode,attachments:List<FrameAttachment>):String{
+  fun route(text:String,mode:FrameMode,attachments:List<FrameAttachment>,preferred:String?=null):String{
     if(mode==FrameMode.VIDEO)return "magichour"
+    if(preferred!=null && preferred!="auto" && hasKey(preferred) && !(attachments.any{it.isImage||it.isPdf} && preferred!="gemini"))return preferred
     if(attachments.any{it.isImage||it.isPdf})return if(hasKey("gemini"))"gemini" else "unavailable"
     val t=text.lowercase()
     return when{
@@ -94,9 +95,9 @@ class FrameXEngine(private val context:Context) {
     }
   }
 
-  suspend fun send(text:String,history:List<FrameMessage>,mode:FrameMode,attachments:List<FrameAttachment>,onChunk:(String)->Unit):Pair<String,String> = withContext(Dispatchers.IO){
+  suspend fun send(text:String,history:List<FrameMessage>,mode:FrameMode,attachments:List<FrameAttachment>,preferredProvider:String?=null,onChunk:(String)->Unit):Pair<String,String> = withContext(Dispatchers.IO){
     if(mode==FrameMode.VIDEO)return@withContext video(text) to "magichour"
-    val primary=route(text,mode,attachments)
+    val primary=route(text,mode,attachments,preferredProvider)
     if(primary=="unavailable")throw IllegalStateException("Connect an AI provider in Settings.")
     val order=linkedSetOf(primary,"gemini","groq","nvidia").filter{it!="magichour"&&hasKey(it)}
     var last:Throwable?=null
