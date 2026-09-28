@@ -1,0 +1,9 @@
+{
+  "name": "@frame-x/provider-core",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "dependencies": {
+    "@frame-x/contracts": "workspace:*"
+  }
+}
