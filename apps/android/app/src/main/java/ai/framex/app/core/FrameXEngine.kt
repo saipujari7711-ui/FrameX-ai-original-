@@ -59,7 +59,7 @@ class FrameXEngine(private val context:Context) {
     val ms=(0 until a.length()).map{val m=a.getJSONObject(it);FrameMessage(m.getString("id"),m.getString("role"),m.getString("content"),m.optString("provider"),m.optLong("createdAt"))}
     FrameChat(o.getString("chatId"),o.getString("title"),o.optString("category","Other"),o.optLong("updatedAt"),ms)
   }.getOrNull()
-  fun chats():List<FrameChat>=chatDir.listFiles()?.filter{it.extension=="json"}?.mapNotNull{loadChat(it.nameWithoutExtension)}?.sortedByDescending{it.updatedAt}?:emptyList()
+  fun chats(): List<FrameChat> =chatDir.listFiles()?.filter{it.extension=="json"}?.mapNotNull{loadChat(it.nameWithoutExtension)}?.sortedByDescending{it.updatedAt}?:emptyList()
   fun deleteChat(id:String){chatDir.resolve(id+".json").delete()}
 
   fun exportAll():String{
