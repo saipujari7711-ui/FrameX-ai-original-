@@ -1280,10 +1280,3 @@ private fun EmptyPanel(title: String, message: String) {
         }
     }
 }
-
-/*
- * Keeps the drawer destination row horizontally scrollable without introducing
- * fixed-width layout assumptions on narrow phones.
- */
-private fun Modifier.horizontalScrollIfNeeded(): Modifier =
-    this.horizontalScroll(rememberScrollState())
