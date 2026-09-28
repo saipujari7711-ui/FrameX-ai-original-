@@ -2,6 +2,8 @@ package ai.framex.app
 
 import android.content.Context
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
@@ -215,7 +217,7 @@ private fun FrameXApp(context: Context) {
                     mode,
                     selectedAttachments,
                     preferred
-                ) { chunk -> streaming += chunk }
+                ) { chunk -> Handler(Looper.getMainLooper()).post { streaming += chunk } }
 
                 streaming = ""
                 messages = messages + FrameMessage(
@@ -261,7 +263,8 @@ private fun FrameXApp(context: Context) {
                 onDeleteChat = {
                     engine.deleteChat(it)
                     refresh()
-                }
+                },
+                selectedChatId = currentChatId
             )
         }
     ) {
@@ -417,7 +420,8 @@ private fun FrameXDrawer(
     onNewChat: () -> Unit,
     onDestination: (Destination) -> Unit,
     onChat: (FrameChat) -> Unit,
-    onDeleteChat: (String) -> Unit
+    onDeleteChat: (String) -> Unit,
+    selectedChatId: String?
 ) {
     val filtered = remember(chats, search) {
         chats.filter {
@@ -478,7 +482,7 @@ private fun FrameXDrawer(
             Row(
                 Modifier
                     .fillMaxWidth()
-                    .horizontalScrollIfNeeded(),
+                    .horizontalScroll(rememberScrollState()),
                 horizontalArrangement = Arrangement.spacedBy(6.dp)
             ) {
                 DrawerDestination("Chat", "✦", destination == Destination.CHAT) {
@@ -521,7 +525,7 @@ private fun FrameXDrawer(
                 items(filtered, key = { it.id }) { chat ->
                     DrawerChatRow(
                         chat = chat,
-                        selected = chat.id == chats.firstOrNull { false }?.id,
+                        selected = chat.id == selectedChatId,
                         onClick = { onChat(chat) },
                         onDelete = { onDeleteChat(chat.id) }
                     )
