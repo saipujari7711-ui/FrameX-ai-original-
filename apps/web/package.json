@@ -12,7 +12,10 @@
     "react": "19.2.0",
     "react-dom": "19.2.0",
     "@frame-x/contracts": "workspace:*",
-    "@frame-x/provider-core": "workspace:*"
+    "@frame-x/provider-core": "workspace:*",
+    "@frame-x/provider-openai": "workspace:*",
+    "@frame-x/auth-core": "workspace:*",
+    "@supabase/supabase-js": "^2.57.4"
   },
   "devDependencies": {
     "@types/node": "^22.0.0",
