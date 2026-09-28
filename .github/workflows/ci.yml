@@ -22,8 +22,8 @@ jobs:
           version: 12.7.0
       - uses: actions/setup-node@v4
         with:
-          node-version: 20
-          cache: pnpm
+          node-version: 24
+          cache: false
       - run: pnpm install --no-frozen-lockfile
       - run: pnpm --filter @frame-x/contracts test
       - run: pnpm --filter @frame-x/web build
