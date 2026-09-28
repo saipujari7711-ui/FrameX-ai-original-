@@ -94,7 +94,7 @@ private fun FrameXApp() {
           }
           Spacer(Modifier.weight(1f))
           HorizontalDivider(color = MaterialTheme.colorScheme.outline)
-          Text("Drive connected · synced 7 min ago", modifier = Modifier.padding(top = 14.dp), style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.tertiary)
+          Text("Sync status available when Drive is connected", modifier = Modifier.padding(top = 14.dp), style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
         }
       }
     }
@@ -160,7 +160,7 @@ private fun DrawerItem(item: Destination, selected: Boolean, onClick: () -> Unit
 @Composable
 private fun HomeScreen(openChat: () -> Unit) {
   LazyColumn(Modifier.fillMaxSize().padding(horizontal = 18.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
-    item { Spacer(Modifier.height(12.dp)); Text("TUESDAY · 28 SEPTEMBER", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant); Text("Good morning.", style = MaterialTheme.typography.headlineLarge); Text("Your workspace is ready.", color = MaterialTheme.colorScheme.onSurfaceVariant) }
+    item { Spacer(Modifier.height(12.dp)); Text("FRAME X / WORKSPACE", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant); Text("Good morning.", style = MaterialTheme.typography.headlineLarge); Text("Your workspace is ready.", color = MaterialTheme.colorScheme.onSurfaceVariant) }
     item {
       Surface(color = MaterialTheme.colorScheme.surface, shape = RoundedCornerShape(20.dp)) {
         Column(Modifier.padding(22.dp)) {
@@ -172,9 +172,9 @@ private fun HomeScreen(openChat: () -> Unit) {
       }
     }
     item { Text("WORKSPACE PULSE", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.padding(top = 8.dp)) }
-    item { StatRow("Connected providers", "2", "OpenAI · Groq") }
-    item { StatRow("Saved conversations", "48", "Across 5 categories") }
-    item { StatRow("Drive", "Ready", "Synced 7 min ago") }
+    item { StatRow("Provider network", "Ready", "Connect a provider to begin") }
+    item { StatRow("Conversations", "Local", "Your saved chats appear here") }
+    item { StatRow("Drive sync", "Not connected", "Connect Google Drive when ready") }
   }
 }
 
@@ -200,7 +200,7 @@ private fun ChatScreen() {
         TextButton(onClick = { taskMode = !taskMode }) { Text(if (taskMode) "Challenge" else "Task mode", color = if (taskMode) Color(0xFFE37B7B) else MaterialTheme.colorScheme.primary) }
       }
     }
-    item { Surface(color = Color(0x1200D4FF), shape = RoundedCornerShape(10.dp)) { Row(Modifier.padding(11.dp), verticalAlignment = Alignment.CenterVertically) { Text("✦", color = MaterialTheme.colorScheme.primary); Column(Modifier.padding(start = 10.dp)) { Text("Using OpenAI · GPT-5.6", fontWeight = FontWeight.SemiBold); Text("Automatic · selected for this task", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant) } } } }
+    item { Surface(color = Color(0x1200D4FF), shape = RoundedCornerShape(10.dp)) { Row(Modifier.padding(11.dp), verticalAlignment = Alignment.CenterVertically) { Text("✦", color = MaterialTheme.colorScheme.primary); Column(Modifier.padding(start = 10.dp)) { Text("Model not selected", fontWeight = FontWeight.SemiBold); Text("Automatic routing waits for a compatible configured provider", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant) } } } }
     item { Text("YOU", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.secondary); Bubble("Help me structure the next phase of FRAME X AI around the user experience.", true, taskMode) }
     item { Text("FRAME X / AI", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant); Bubble("Expose decisions, hide implementation noise. Keep provider, model and sync state clear without turning the chat into infrastructure.", false, taskMode) }
     if (notice.isNotBlank()) item { Text(notice, color = MaterialTheme.colorScheme.primary, style = MaterialTheme.typography.labelSmall) }
@@ -209,7 +209,7 @@ private fun ChatScreen() {
         Row(Modifier.fillMaxWidth().padding(8.dp), verticalAlignment = Alignment.Bottom) {
           Text("＋", modifier = Modifier.padding(8.dp), color = MaterialTheme.colorScheme.onSurfaceVariant)
           androidx.compose.material3.OutlinedTextField(value = input, onValueChange = { input = it }, modifier = Modifier.weight(1f), placeholder = { Text("Ask FRAME X anything...") })
-          Button(onClick = { notice = if (input.isBlank()) "Write a message first." else "Message staged in the UI; provider execution remains behind the existing AI gateway." }, modifier = Modifier.padding(start = 6.dp)) { Text("↑") }
+          Button(onClick = { notice = if (input.isBlank()) "Write a message first." else "No provider is connected to this chat surface yet. Your message was not sent." }, modifier = Modifier.padding(start = 6.dp)) { Text("↑") }
         }
       }
     }
@@ -236,10 +236,10 @@ private fun ListScreen(title: String, subtitle: String) {
 
 @Composable
 private fun ProvidersScreen() {
-  val providers = listOf("OpenAI" to "Connected · 2 keys", "Groq" to "Connected · 1 key", "Google Gemini" to "Needs key", "Anthropic" to "Needs key")
+  val providers = listOf("OpenAI" to "Not configured", "Groq" to "Not configured", "Google Gemini" to "Not configured", "Anthropic" to "Not configured")
   LazyColumn(Modifier.fillMaxSize().padding(20.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
     item { Text("MODEL NETWORK", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant); Text("Providers", style = MaterialTheme.typography.headlineLarge) }
-    items(providers) { (name, state) -> Surface(color = MaterialTheme.colorScheme.surface, shape = RoundedCornerShape(14.dp)) { Row(Modifier.fillMaxWidth().padding(16.dp), verticalAlignment = Alignment.CenterVertically) { Text(name, Modifier.weight(1f), fontWeight = FontWeight.SemiBold); Text(state, color = if (state.startsWith("Connected")) MaterialTheme.colorScheme.tertiary else MaterialTheme.colorScheme.secondary, style = MaterialTheme.typography.labelSmall) } } }
+    items(providers) { (name, state) -> Surface(color = MaterialTheme.colorScheme.surface, shape = RoundedCornerShape(14.dp)) { Row(Modifier.fillMaxWidth().padding(16.dp), verticalAlignment = Alignment.CenterVertically) { Text(name, Modifier.weight(1f), fontWeight = FontWeight.SemiBold); Text(state, color = MaterialTheme.colorScheme.onSurfaceVariant, style = MaterialTheme.typography.labelSmall) } } }
   }
 }
 
@@ -249,7 +249,7 @@ private fun DriveScreen() {
     Text("STORAGE / GOOGLE DRIVE", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
     Text("Your sync layer", style = MaterialTheme.typography.headlineLarge, modifier = Modifier.padding(top = 8.dp))
     Surface(color = Color(0x0D80C6A0), shape = RoundedCornerShape(16.dp), modifier = Modifier.padding(top = 20.dp)) {
-      Column(Modifier.padding(20.dp)) { Text("Connected", color = MaterialTheme.colorScheme.tertiary, fontWeight = FontWeight.Bold); Text("Everything is in sync.", style = MaterialTheme.typography.headlineMedium, modifier = Modifier.padding(top = 8.dp)); Text("Last synchronized 7 minutes ago.", color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.padding(top = 4.dp)) }
+      Column(Modifier.padding(20.dp)) { Text("Not connected", color = MaterialTheme.colorScheme.onSurfaceVariant, fontWeight = FontWeight.Bold); Text("Drive sync is not configured yet.", style = MaterialTheme.typography.headlineMedium, modifier = Modifier.padding(top = 8.dp)); Text("No synchronization has been performed.", color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.padding(top = 4.dp)) }
     }
   }
 }
