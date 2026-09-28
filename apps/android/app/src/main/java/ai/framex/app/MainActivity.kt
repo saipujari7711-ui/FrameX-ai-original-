@@ -94,6 +94,8 @@ private fun FrameXApp(context:Context){
   val exportLauncher=rememberLauncherForActivityResult(ActivityResultContracts.CreateDocument("application/json")){uri->
     if(uri!=null)scope.launch{withContext(Dispatchers.IO){context.contentResolver.openOutputStream(uri)?.use{it.write(engine.exportAll().toByteArray())}}}
   }
+  val importLauncher=rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()){uri->
+    if(uri!=null)scope.launch{runCatching{val raw=withContext(Dispatchers.IO){context.contentResolver.openInputStream(uri)?.bufferedReader()?.readText()?:throw IllegalStateException("Empty backup")};engine.importAll(raw);refresh()}.onFailure{error=it.message?:"Import failed"}}}
 
   fun send(){
     val raw=input.trim()
@@ -138,7 +140,7 @@ private fun FrameXApp(context:Context){
         Page.CHAT->ChatPage(messages,input,{input=it},mode,{mode=it},provider,{provider=it},busy,streaming,error,attachments,{attachments=it},{picker.launch(arrayOf("*/*"))},::send)
         Page.HISTORY->HistoryPage(chats,search,{search=it},{c->current=c;messages=c.messages;page=Page.CHAT},{id->engine.deleteChat(id);refresh()})
         Page.MEMORY->MemoryPage(memories,{text,cat->engine.addMemory(text,cat);refresh()},{id->engine.deleteMemory(id);refresh()},{engine.clearMemories();refresh()})
-        Page.SETTINGS->SettingsPage(engine,exportLauncher,{newChat();page=Page.CHAT})
+        Page.SETTINGS->SettingsPage(engine,exportLauncher,importLauncher,{newChat();page=Page.CHAT})
       }
     }
   }
@@ -200,7 +202,7 @@ private fun ChatPage(messages:List<FrameMessage>,input:String,onInput:(String)->
   }
 }
 
-@Composable private fun SettingsPage(engine:FrameXEngine,exportLauncher:androidx.activity.result.ActivityResultLauncher<String>,onNewChat:()->Unit){
+@Composable private fun SettingsPage(engine:FrameXEngine,exportLauncher:androidx.activity.result.ActivityResultLauncher<String>,importLauncher:androidx.activity.result.ActivityResultLauncher<Array<String>>,onNewChat:()->Unit){
   var gemini by remember{mutableStateOf("")};var groq by remember{mutableStateOf("")};var nvidia by remember{mutableStateOf("")};var mh by remember{mutableStateOf("")}
   LazyColumn(Modifier.fillMaxSize().padding(14.dp),verticalArrangement=Arrangement.spacedBy(10.dp)){item{Text("Settings",style=MaterialTheme.typography.headlineLarge);Text("Provider credentials are encrypted with Android Keystore.",color=MaterialTheme.colorScheme.onSurfaceVariant)}
     item{KeyRow("Gemini",gemini,{gemini=it},{engine.setKey("gemini",gemini);gemini=""},engine.hasKey("gemini"))}
@@ -208,7 +210,7 @@ private fun ChatPage(messages:List<FrameMessage>,input:String,onInput:(String)->
     item{KeyRow("NVIDIA",nvidia,{nvidia=it},{engine.setKey("nvidia",nvidia);nvidia=""},engine.hasKey("nvidia"))}
     item{KeyRow("Magic Hour",mh,{mh=it},{engine.setKey("magichour",mh);mh=""},engine.hasKey("magichour"))}
     item{Surface(color=MaterialTheme.colorScheme.surface,shape=RoundedCornerShape(14.dp)){Column(Modifier.padding(14.dp)){Text("Google Drive");Text("OAuth/Drive sync requires a Google Cloud Android OAuth client and consent configuration; the app does not fake a connected state.",color=MaterialTheme.colorScheme.onSurfaceVariant,style=MaterialTheme.typography.bodySmall)} }}
-    item{Row(horizontalArrangement=Arrangement.spacedBy(8.dp)){Button(onClick={exportLauncher.launch("framex-backup.json")}){Text("Export data")};TextButton(onClick=onNewChat){Text("New chat")}}}
+    item{Row(horizontalArrangement=Arrangement.spacedBy(8.dp)){Button(onClick={exportLauncher.launch("framex-backup.json")}){Text("Export data")};Button(onClick={importLauncher.launch(arrayOf("application/json"))}){Text("Import data")};TextButton(onClick=onNewChat){Text("New chat")}}}
   }
 }
 
