@@ -163,37 +163,55 @@ export class OpenAIAdapter implements ProviderAdapter {
     const decoder = new TextDecoder();
     let buffer = "";
 
-    for await (const chunk of response.body) {
-      buffer += decoder.decode(chunk, { stream: true });
-      const lines = buffer.split("\n");
-      buffer = lines.pop() ?? "";
+    const reader = response.body.getReader();
+    try {
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
 
-      for (const line of lines) {
-        if (!line.startsWith("data:")) continue;
-        const raw = line.slice(5).trim();
-        if (!raw || raw === "[DONE]") continue;
+        buffer += decoder.decode(value, { stream: true });
+        const lines = buffer.split("\n");
+        buffer = lines.pop() ?? "";
 
-        let event: { type?: string; delta?: string; response?: { usage?: { input_tokens?: number; output_tokens?: number; total_tokens?: number } } };
-        try {
-          event = JSON.parse(raw);
-        } catch {
-          continue;
-        }
+        for (const line of lines) {
+          if (!line.startsWith("data:")) continue;
+          const raw = line.slice(5).trim();
+          if (!raw || raw === "[DONE]") continue;
 
-        if (event.type === "response.output_text.delta" && event.delta) {
-          yield { type: "text-delta", text: event.delta };
-        } else if (event.type === "response.completed") {
-          const usage = event.response?.usage;
-          yield {
-            type: "completed",
-            data: usage ? {
-              inputTokens: usage.input_tokens,
-              outputTokens: usage.output_tokens,
-              totalTokens: usage.total_tokens
-            } : undefined
+          let event: {
+            type?: string;
+            delta?: string;
+            response?: {
+              usage?: {
+                input_tokens?: number;
+                output_tokens?: number;
+                total_tokens?: number;
+              };
+            };
           };
+          try {
+            event = JSON.parse(raw);
+          } catch {
+            continue;
+          }
+
+          if (event.type === "response.output_text.delta" && event.delta) {
+            yield { type: "text-delta", text: event.delta };
+          } else if (event.type === "response.completed") {
+            const usage = event.response?.usage;
+            yield {
+              type: "completed",
+              data: usage ? {
+                inputTokens: usage.input_tokens,
+                outputTokens: usage.output_tokens,
+                totalTokens: usage.total_tokens
+              } : undefined
+            };
+          }
         }
       }
+    } finally {
+      reader.releaseLock();
     }
   }
 }
