@@ -19,10 +19,7 @@ export interface ChatRepository {
 }
 
 export class ProviderLimitError extends Error {
-  constructor(
-    message: string,
-    readonly alternatives: RoutingCandidate[]
-  ) {
+  constructor(message: string, readonly alternatives: RoutingCandidate[]) {
     super(message);
     this.name = "ProviderLimitError";
   }
@@ -35,6 +32,10 @@ export interface SendMessageInput {
   candidates: RoutingCandidate[];
   credentialResolver: CredentialResolver;
   repository: ChatRepository;
+}
+
+function now(): string {
+  return new Date().toISOString();
 }
 
 export async function* streamMessage(
@@ -53,32 +54,24 @@ export async function* streamMessage(
   const chat = await input.repository.get(input.chatId);
   if (!chat) throw new Error("Chat not found.");
 
-  const message: Message = {
+  const userMessage: Message = {
     id: crypto.randomUUID(),
     role: "user",
     content: input.text,
-    createdAt: new Date().toISOString(),
+    createdAt: now(),
     attachments: []
   };
-
-  const request: ProviderRequest = {
-    modelId: route.model.modelId,
-    messages: [
-      ...chat.messages.map(item => ({
-        role: item.role,
-        content: item.content
-      })),
-      { role: "user", content: input.text }
-    ],
-    signal: undefined
+  const assistantMessage: Message = {
+    id: crypto.randomUUID(),
+    role: "assistant",
+    content: "",
+    createdAt: now(),
+    attachments: [],
+    modelMetadata: route.model
   };
 
-  for await (const event of adapter.stream(request, credential)) {
-    yield event;
-  }
-
-  chat.messages.push(message);
-  chat.updatedAt = new Date().toISOString();
+  chat.messages.push(userMessage, assistantMessage);
+  chat.updatedAt = now();
   chat.revision += 1;
   chat.modelMetadata = {
     providerId: route.providerId,
@@ -86,4 +79,34 @@ export async function* streamMessage(
     taskRouting: input.routing
   };
   await input.repository.save(chat);
+
+  const request: ProviderRequest = {
+    modelId: route.model.modelId,
+    messages: chat.messages
+      .slice(0, -1)
+      .map(item => ({ role: item.role, content: item.content })),
+    signal: undefined
+  };
+
+  try {
+    for await (const event of adapter.stream(request, credential)) {
+      if (event.type === "text-delta" && event.text) {
+        assistantMessage.content += event.text;
+        chat.updatedAt = now();
+        chat.revision += 1;
+        await input.repository.save(chat);
+      }
+
+      yield event;
+    }
+
+    await input.repository.save(chat);
+  } catch (error) {
+    const index = chat.messages.findIndex(message => message.id === assistantMessage.id);
+    if (index >= 0) chat.messages.splice(index, 1);
+    chat.updatedAt = now();
+    chat.revision += 1;
+    await input.repository.save(chat);
+    throw error;
+  }
 }
