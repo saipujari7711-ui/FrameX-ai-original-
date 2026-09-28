@@ -20,6 +20,11 @@ android {
     buildConfig = true
   }
 
+  val googleWebClientId = providers.gradleProperty("GOOGLE_WEB_CLIENT_ID")
+    .orElse(providers.environmentVariable("GOOGLE_WEB_CLIENT_ID"))
+    .orElse("")
+  resValue("string", "google_web_client_id", googleWebClientId.get())
+
   packaging {
     resources {
       excludes += "/META-INF/{AL2.0,LGPL2.1}"
@@ -38,6 +43,12 @@ dependencies {
   implementation("androidx.compose.ui:ui-tooling-preview")
   debugImplementation("androidx.compose.ui:ui-tooling")
   implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.10.2")
+  implementation("org.jetbrains.kotlinx:kotlinx-coroutines-play-services:1.10.2")
+  implementation("androidx.credentials:credentials:1.6.0")
+  implementation("androidx.credentials:credentials-play-services-auth:1.6.0")
+  implementation("com.google.android.libraries.identity.googleid:googleid:1.2.1")
+  implementation("com.google.android.gms:play-services-auth:22.0.0")
+  implementation("androidx.work:work-runtime-ktx:2.12.0")
 
   testImplementation("junit:junit:4.13.2")
   androidTestImplementation("androidx.compose.ui:ui-test-junit4")
