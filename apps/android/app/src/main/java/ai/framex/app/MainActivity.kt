@@ -36,6 +36,7 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import ai.framex.app.auth.FrameXAuthGate
 import ai.framex.app.core.FrameAttachment
 import ai.framex.app.core.FrameChat
 import ai.framex.app.core.FrameMemory
@@ -64,9 +65,12 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
-        setContent { FrameXTheme { FrameXApp(applicationContext) } }
+        setContent { FrameXTheme { FrameXAuthGate(applicationContext) } }
     }
 }
+
+@Composable
+fun FrameXAuthenticatedContent(context: Context) { FrameXApp(context) }
 
 @Composable
 private fun FrameXApp(context: Context) {
