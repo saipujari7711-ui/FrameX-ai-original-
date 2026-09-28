@@ -23,7 +23,6 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 24
-          cache: false
       - run: pnpm install --no-frozen-lockfile
       - run: pnpm --filter @frame-x/contracts test
       - run: pnpm --filter @frame-x/web build
