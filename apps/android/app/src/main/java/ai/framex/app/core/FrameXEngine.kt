@@ -69,6 +69,18 @@ class FrameXEngine(private val context:Context) {
     return root.put("memories",mem).put("chats",cs).toString(2)
   }
 
+  fun importAll(raw:String){
+    val root=JSONObject(raw)
+    val mem=root.optJSONArray("memories")?:JSONArray()
+    prefs.edit().putString("memories",mem.toString()).apply()
+    val cs=root.optJSONArray("chats")?:JSONArray()
+    for(i in 0 until cs.length()){
+      val x=cs.getJSONObject(i)
+      val o=JSONObject().put("schemaVersion",1).put("chatId",x.getString("id")).put("title",x.optString("title","Imported chat")).put("category",x.optString("category","Other")).put("updatedAt",x.optLong("updatedAt",System.currentTimeMillis())).put("messages",x.optJSONArray("messages")?:JSONArray())
+      chatDir.resolve(x.getString("id")+".json").writeText(o.toString())
+    }
+  }
+
   fun route(text:String,mode:FrameMode,attachments:List<FrameAttachment>):String{
     if(mode==FrameMode.VIDEO)return "magichour"
     if(attachments.any{it.isImage||it.isPdf})return if(hasKey("gemini"))"gemini" else "unavailable"
