@@ -112,7 +112,7 @@ private fun FrameXApp(context:Context){
     scope.launch{
       try{
         var streamed=""
-        val (answer,used)=engine.send(prompt,messages,mode,localAttachments){chunk->main.post{streamed+=chunk;streaming=streamed}}
+        val (answer,used)=engine.send(prompt,messages,mode,localAttachments,if(provider=="auto")null else provider){chunk->main.post{streamed+=chunk;streaming=streamed}}
         streaming=""
         messages=messages+FrameMessage(role="assistant",content=answer,provider=used)
         provider=used
@@ -151,7 +151,7 @@ private fun ChatPage(messages:List<FrameMessage>,input:String,onInput:(String)->
   Column(Modifier.fillMaxSize()){
     Row(Modifier.fillMaxWidth().padding(horizontal=14.dp,vertical=4.dp),horizontalArrangement=Arrangement.SpaceBetween,verticalAlignment=Alignment.CenterVertically){
       Row(horizontalArrangement=Arrangement.spacedBy(6.dp)){FilterChip(mode==FrameMode.NORMAL,{onMode(FrameMode.NORMAL)},label={Text("Normal")});FilterChip(mode==FrameMode.CODE,{onMode(FrameMode.CODE)},label={Text("Code")});FilterChip(mode==FrameMode.VIDEO,{onMode(FrameMode.VIDEO)},label={Text("Video")})}
-      Text(if(provider=="auto")"Smart Route" else provider.uppercase(),style=MaterialTheme.typography.labelSmall,color=MaterialTheme.colorScheme.primary)
+      Row(horizontalArrangement=Arrangement.spacedBy(4.dp)){listOf("auto","gemini","groq","nvidia").forEach{p->FilterChip(provider==p,{onProvider(p)},label={Text(if(p=="auto")"Auto" else p.uppercase(),style=MaterialTheme.typography.labelSmall)})}}
     }
     LazyColumn(Modifier.weight(1f).fillMaxWidth().padding(horizontal=12.dp),verticalArrangement=Arrangement.spacedBy(10.dp),contentPadding=PaddingValues(vertical=12.dp)){
       if(messages.isEmpty()&&streaming.isEmpty())item{
