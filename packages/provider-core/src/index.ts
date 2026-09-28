@@ -116,7 +116,7 @@ export function selectRoute(
   request: RoutingRequest,
   candidates: RoutingCandidate[]
 ): RoutingCandidate | null {
-  const required = new Set(request.requestedCapabilities ?? ["text"]);
+  const required = new Set<Capability>(request.requestedCapabilities ?? ["text"]);
 
   const eligible = candidates
     .filter(c => !request.excludedProviders?.includes(c.providerId))
