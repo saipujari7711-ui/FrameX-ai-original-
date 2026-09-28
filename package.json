@@ -1,0 +1,12 @@
+{
+  "name": "frame-x-ai",
+  "private": true,
+  "version": "0.1.0",
+  "packageManager": "pnpm@10.0.0",
+  "scripts": {
+    "web:dev": "pnpm --filter @frame-x/web dev",
+    "web:build": "pnpm --filter @frame-x/web build",
+    "web:test": "pnpm --filter @frame-x/web test",
+    "contracts:test": "pnpm --filter @frame-x/contracts test"
+  }
+}
