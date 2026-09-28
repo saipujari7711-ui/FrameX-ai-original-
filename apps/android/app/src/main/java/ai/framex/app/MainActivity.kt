@@ -172,7 +172,7 @@ private fun HomeScreen(openChat: () -> Unit) {
       }
     }
     item { Text("WORKSPACE PULSE", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.padding(top = 8.dp)) }
-    item { StatRow("Provider network", "Ready", "Connect a provider to begin") }
+    item { StatRow("Provider network", "Not configured", "Connect a provider to begin") }
     item { StatRow("Conversations", "Local", "Your saved chats appear here") }
     item { StatRow("Drive sync", "Not connected", "Connect Google Drive when ready") }
   }
@@ -256,7 +256,7 @@ private fun DriveScreen() {
 
 @Composable
 private fun SettingsScreen() {
-  val rows = listOf("Appearance" to "Dark environment · reduced motion", "Routing" to "Automatic · capability-aware", "API keys" to "Stored securely on this device", "Google Drive" to "Connected", "Privacy & security" to "Local-first · no secret logging", "Accessibility" to "Scalable type · screen reader")
+  val rows = listOf("Appearance" to "Dark environment · reduced motion", "Routing" to "Automatic · capability-aware", "API keys" to "No provider credentials configured", "Google Drive" to "Not connected", "Privacy & security" to "Local-first · no secret logging", "Accessibility" to "Scalable type · screen reader")
   LazyColumn(Modifier.fillMaxSize().padding(20.dp), verticalArrangement = Arrangement.spacedBy(1.dp)) {
     item { Text("SYSTEM / SETTINGS", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant); Text("Settings", style = MaterialTheme.typography.headlineLarge, modifier = Modifier.padding(top = 8.dp, bottom = 18.dp)) }
     items(rows) { (title, detail) -> Surface(color = MaterialTheme.colorScheme.surface) { Row(Modifier.fillMaxWidth().padding(17.dp), horizontalArrangement = Arrangement.SpaceBetween) { Column(Modifier.weight(1f)) { Text(title, fontWeight = FontWeight.SemiBold); Text(detail, style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant) }; Text("›", color = MaterialTheme.colorScheme.primary) } } }
