@@ -165,7 +165,7 @@ private fun ChatPage(messages:List<FrameMessage>,input:String,onInput:(String)->
       if(error.isNotBlank())item{Surface(color=Color(0x331F0A0A),shape=RoundedCornerShape(12.dp)){Text("⚠ "+error,Modifier.padding(12.dp),color=MaterialTheme.colorScheme.error)}}
     }
     if(attachments.isNotEmpty())Row(Modifier.fillMaxWidth().padding(horizontal=10.dp),horizontalArrangement=Arrangement.spacedBy(6.dp)){
-      attachments.forEach{a->AssistChip(onClick={},label={Text(a.name.take(18))},trailingIcon={Text("×",Modifier.clickable{onAttachments(attachments-it.let{emptyList()})})})}
+      attachments.forEachIndexed{index,a->AssistChip(onClick={},label={Text(a.name.take(18))},trailingIcon={Text("×",Modifier.clickable{onAttachments(attachments.filterIndexed{i,_->i!=index})})})}
     }
     Row(Modifier.fillMaxWidth().padding(10.dp),verticalAlignment=Alignment.Bottom){
       IconButton(onClick=onPick){Text("＋")}
