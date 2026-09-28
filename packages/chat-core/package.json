@@ -1,0 +1,10 @@
+{
+  "name": "@frame-x/chat-core",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "dependencies": {
+    "@frame-x/contracts": "workspace:*",
+    "@frame-x/provider-core": "workspace:*"
+  }
+}
