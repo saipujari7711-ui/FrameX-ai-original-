@@ -126,7 +126,7 @@ private fun FrameXApp(context:Context){
     topBar={
       Row(Modifier.fillMaxWidth().background(MaterialTheme.colorScheme.background).padding(12.dp),verticalAlignment=Alignment.CenterVertically,horizontalArrangement=Arrangement.SpaceBetween){
         Row(verticalAlignment=Alignment.CenterVertically){FrameXLogo(Modifier.size(36.dp));Text("FRAME X AI",Modifier.padding(start=8.dp),style=MaterialTheme.typography.titleLarge,fontWeight=FontWeight.SemiBold)}
-        TextButton(onClick={newChat}){Text("＋ New chat")}
+        TextButton(onClick={newChat()}){Text("＋ New chat")}
       }
     },
     bottomBar={
