@@ -3,6 +3,8 @@ package ai.framex.app.core
 import android.content.Context
 import android.util.Base64
 import ai.framex.app.security.SecureCredentialStore
+import ai.framex.app.drive.DriveSyncItem
+import ai.framex.app.drive.DriveSyncQueue
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.json.JSONArray
@@ -52,7 +54,9 @@ class FrameXEngine(private val context:Context) {
     val o=JSONObject().put("schemaVersion",1).put("chatId",chat.id).put("title",chat.title).put("category",chat.category).put("updatedAt",chat.updatedAt)
     val a=JSONArray();chat.messages.forEach{a.put(JSONObject().put("id",it.id).put("role",it.role).put("content",it.content).put("provider",it.provider).put("createdAt",it.createdAt))}
     o.put("messages",a)
-    chatDir.resolve(chat.id+".json").writeText(o.toString())
+    val localFile=chatDir.resolve(chat.id+".json")
+    localFile.writeText(o.toString())
+    DriveSyncQueue(context).enqueue(DriveSyncItem(chat.id,localFile.absolutePath,chat.id+".json",chat.category,"application/json",chat.updatedAt))
   }
   fun loadChat(id:String):FrameChat?=runCatching{
     val o=JSONObject(chatDir.resolve(id+".json").readText());val a=o.getJSONArray("messages")
