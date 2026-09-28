@@ -44,6 +44,8 @@ class DriveSyncQueue(private val context:Context) {
         }.getOrNull() }
     }
 
+    fun kick() { schedule() }
+
     private fun schedule() {
         val request=OneTimeWorkRequestBuilder<DriveSyncWorker>()
             .setConstraints(Constraints.Builder().setRequiredNetworkType(NetworkType.CONNECTED).build())
