@@ -1,0 +1,49 @@
+name: FRAME X AI Android APK
+
+on:
+  push:
+    branches: ["main"]
+    paths:
+      - "apps/android/**"
+      - ".github/workflows/android-apk.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build-apk:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: apps/android
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Java 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: "9.6.0"
+
+      - name: Build FRAME X AI APK
+        run: gradle clean assembleDebug --no-daemon
+
+      - name: Verify APK exists
+        run: |
+          test -n "$(find app/build/outputs/apk/debug -maxdepth 1 -name '*.apk' -print -quit)"
+          ls -lh app/build/outputs/apk/debug/*.apk
+
+      - name: Upload FRAME X AI APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: FRAME-X-AI-debug-apk
+          path: apps/android/app/build/outputs/apk/debug/*.apk
+          if-no-files-found: error
+          retention-days: 14
