@@ -1,5 +1,6 @@
 name: FRAME X AI Android APK
 
+# APK build workflow — triggered for the latest Android project state.
 on:
   push:
     branches: ["main"]
