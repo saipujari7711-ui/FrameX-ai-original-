@@ -1,6 +1,5 @@
 name: FRAME X AI Android APK
 
-# APK build workflow — triggered for the latest Android project state.
 on:
   push:
     branches: ["main"]
@@ -34,14 +33,13 @@ jobs:
         with:
           distribution: temurin
           java-version: "17"
-          cache: gradle
 
-      - name: Set up Gradle
+      - name: Set up Gradle 9.6.0
         uses: gradle/actions/setup-gradle@v4
         with:
           gradle-version: "9.6.0"
 
-      - name: Verify Gradle and Android project
+      - name: Verify Android project
         run: |
           gradle --version
           test -f settings.gradle.kts
