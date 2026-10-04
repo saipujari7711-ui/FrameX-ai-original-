@@ -15,7 +15,7 @@ import ai.framex.app.drive.DriveStructure
 import ai.framex.app.drive.GoogleDriveService
 import ai.framex.app.drive.DriveSyncQueue
 import ai.framex.app.ui.GoogleSignInScreen
-import ai.framex.app.ui.FrameXAuthenticatedContent
+import ai.framex.app.FrameXAuthenticatedContent
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 
