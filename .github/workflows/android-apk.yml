@@ -50,17 +50,21 @@ jobs:
         run: gradle testDebugUnitTest --no-daemon --stacktrace
 
       - name: Build FRAME X AI APK
-        run: gradle clean assembleDebug --no-daemon --stacktrace
+        run: gradle clean assembleDebug assembleRelease lintDebug --no-daemon --stacktrace
 
       - name: Verify APK exists
         run: |
           test -f app/build/outputs/apk/debug/app-debug.apk
+          test -f app/build/outputs/apk/release/app-release-unsigned.apk
           ls -lh app/build/outputs/apk/debug/app-debug.apk
+          ls -lh app/build/outputs/apk/release/app-release-unsigned.apk
 
       - name: Upload FRAME X AI APK
         uses: actions/upload-artifact@v4
         with:
           name: FRAME-X-AI-debug-apk
-          path: apps/android/app/build/outputs/apk/debug/app-debug.apk
+          path: |
+            apps/android/app/build/outputs/apk/debug/app-debug.apk
+            apps/android/app/build/outputs/apk/release/app-release-unsigned.apk
           if-no-files-found: error
           retention-days: 30
