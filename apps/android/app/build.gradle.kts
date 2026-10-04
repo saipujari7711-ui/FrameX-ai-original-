@@ -13,6 +13,8 @@ android {
     targetSdk = 37
     versionCode = 2
     versionName = "0.2.0"
+
+    resValue("string", "google_web_client_id", googleWebClientId.get())
   }
 
   buildFeatures {
@@ -23,7 +25,6 @@ android {
   val googleWebClientId = providers.gradleProperty("GOOGLE_WEB_CLIENT_ID")
     .orElse(providers.environmentVariable("GOOGLE_WEB_CLIENT_ID"))
     .orElse("")
-  resValue("string", "google_web_client_id", googleWebClientId.get())
 
   packaging {
     resources {
