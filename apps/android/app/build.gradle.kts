@@ -3,6 +3,10 @@ plugins {
   id("org.jetbrains.kotlin.plugin.compose")
 }
 
+val googleWebClientId = providers.gradleProperty("GOOGLE_WEB_CLIENT_ID")
+  .orElse(providers.environmentVariable("GOOGLE_WEB_CLIENT_ID"))
+  .orElse("")
+
 android {
   namespace = "ai.framex.app"
   compileSdk = 37
@@ -21,10 +25,6 @@ android {
     compose = true
     buildConfig = true
   }
-
-  val googleWebClientId = providers.gradleProperty("GOOGLE_WEB_CLIENT_ID")
-    .orElse(providers.environmentVariable("GOOGLE_WEB_CLIENT_ID"))
-    .orElse("")
 
   packaging {
     resources {
