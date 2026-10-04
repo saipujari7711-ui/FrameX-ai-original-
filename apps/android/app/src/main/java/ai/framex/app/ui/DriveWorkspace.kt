@@ -80,7 +80,7 @@ fun DriveWorkspace(
         Row(Modifier.fillMaxWidth(),verticalAlignment=Alignment.CenterVertically) {
             Text("Google Drive",style=MaterialTheme.typography.headlineSmall,fontWeight=FontWeight.SemiBold,modifier=Modifier.weight(1f))
             TextButton(onClick={ uploadLauncher.launch(arrayOf("*/*")) }) { Text("Upload") }
-            TextButton(onClick={ reload() }) { Text("Refresh") }
+            TextButton(onClick={ scope.launch { reload() } }) { Text("Refresh") }
         }
         OutlinedTextField(
             value=query,onValueChange={query=it},modifier=Modifier.fillMaxWidth().padding(vertical=8.dp),
