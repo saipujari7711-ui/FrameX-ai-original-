@@ -30,7 +30,7 @@ fun FrameXAuthGate(context: android.content.Context) {
     var busy by remember { mutableStateOf(false) }
     var error by remember { mutableStateOf<String?>(null) }
     var showDrive by remember { mutableStateOf(false) }
-    var initialized by remember { mutableStateOf(false) }
+    var initialized by remember { mutableStateOf(account != null) }
 
     fun finishAuthorization(accessToken: String) {
         token = accessToken
@@ -76,10 +76,6 @@ fun FrameXAuthGate(context: android.content.Context) {
         }
     }
 
-    LaunchedEffect(account) {
-        if (account != null && !initialized) authorizeDrive()
-    }
-
     if (account == null) {
         GoogleSignInScreen(
             busy = busy,
@@ -89,7 +85,11 @@ fun FrameXAuthGate(context: android.content.Context) {
                     busy = true
                     error = null
                     runCatching { auth.signIn(activity) }
-                        .onSuccess { account = it; initialized = false }
+                        .onSuccess {
+                            account = it
+                            initialized = false
+                            authorizeDrive()
+                        }
                         .onFailure { error = it.message ?: "Google sign-in was cancelled or failed." }
                     busy = false
                 }
