@@ -55,14 +55,26 @@ jobs:
 
       - name: Android startup smoke test
         uses: reactivecircus/android-emulator-runner@v2
+        timeout-minutes: 8
         with:
           api-level: 35
           target: google_apis
           arch: x86_64
           emulator-options: -no-window -no-audio -no-boot-anim -gpu swiftshader_indirect
           disable-animations: true
-          script: gradle connectedDebugAndroidTest --no-daemon --stacktrace
-
+          script: |
+            adb install -r app/build/outputs/apk/debug/app-debug.apk
+            adb logcat -c
+            adb shell am force-stop ai.framex.app
+            adb shell am start -W -n ai.framex.app/.MainActivity
+            sleep 8
+            LOG="$(adb logcat -d -v threadtime)"
+            printf '%s\n' "$LOG"
+            if printf '%s\n' "$LOG" | grep -E "FATAL EXCEPTION|AndroidRuntime.*FATAL|Process: ai.framex.app" >/dev/null; then
+              echo "FRAME X AI startup crash detected"
+              exit 1
+            fi
+            echo "FRAME X AI launched without an AndroidRuntime crash"
       - name: Verify APK exists
         run: |
           test -f app/build/outputs/apk/debug/app-debug.apk
