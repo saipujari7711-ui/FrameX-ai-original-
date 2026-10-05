@@ -7,6 +7,7 @@ on:
       - "apps/android/**"
       - ".github/workflows/android-apk.yml"
   workflow_dispatch:
+  pull_request:
 
 permissions:
   contents: read
@@ -51,6 +52,16 @@ jobs:
 
       - name: Build FRAME X AI APK
         run: gradle clean assembleDebug assembleRelease lintDebug --no-daemon --stacktrace
+
+      - name: Android startup smoke test
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 35
+          target: google_apis
+          arch: x86_64
+          emulator-options: -no-window -no-audio -no-boot-anim -gpu swiftshader_indirect
+          disable-animations: true
+          script: gradle connectedDebugAndroidTest --no-daemon --stacktrace
 
       - name: Verify APK exists
         run: |
