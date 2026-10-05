@@ -65,7 +65,7 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
-        setContent { FrameXTheme { FrameXAuthGate(applicationContext) } }
+        setContent { FrameXTheme { FrameXAuthGate(this@MainActivity) } }
     }
 }
 
