@@ -17,6 +17,7 @@ android {
     targetSdk = 37
     versionCode = 2
     versionName = "0.2.0"
+    testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
     resValue("string", "google_web_client_id", googleWebClientId.get())
   }
@@ -54,5 +55,6 @@ dependencies {
 
   testImplementation("junit:junit:4.13.2")
   androidTestImplementation("androidx.compose.ui:ui-test-junit4")
+  androidTestImplementation("androidx.test:rules:1.6.1")
   debugImplementation("androidx.compose.ui:ui-test-manifest")
 }
