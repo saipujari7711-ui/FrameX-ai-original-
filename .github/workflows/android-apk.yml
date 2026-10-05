@@ -7,6 +7,7 @@ on:
       - "apps/android/**"
       - ".github/workflows/android-apk.yml"
   workflow_dispatch:
+  pull_request:
 
 permissions:
   contents: read
@@ -52,7 +53,7 @@ jobs:
       - name: Build FRAME X AI APK
         run: gradle clean assembleDebug assembleRelease lintDebug --no-daemon --stacktrace
 
-      - name: Verify APK exists
+      - name: Verify APK exists before runtime test
         run: |
           test -f app/build/outputs/apk/debug/app-debug.apk
           test -f app/build/outputs/apk/release/app-release-unsigned.apk
@@ -68,3 +69,26 @@ jobs:
             apps/android/app/build/outputs/apk/release/app-release-unsigned.apk
           if-no-files-found: error
           retention-days: 30
+
+      - name: Android startup smoke test
+        uses: reactivecircus/android-emulator-runner@v2
+        timeout-minutes: 8
+        with:
+          api-level: 35
+          target: google_apis
+          arch: x86_64
+          emulator-options: -no-window -no-audio -no-boot-anim -gpu swiftshader_indirect
+          disable-animations: true
+          script: |
+            adb install -r app/build/outputs/apk/debug/app-debug.apk
+            adb logcat -c
+            adb shell am force-stop ai.framex.app
+            adb shell am start -W -n ai.framex.app/.MainActivity
+            sleep 8
+            LOG="$(adb logcat -d -v threadtime)"
+            printf '%s\n' "$LOG"
+            if printf '%s\n' "$LOG" | grep -E "FATAL EXCEPTION|AndroidRuntime.*FATAL|Process: ai.framex.app" >/dev/null; then
+              echo "FRAME X AI startup crash detected"
+              exit 1
+            fi
+            echo "FRAME X AI launched without an AndroidRuntime crash"

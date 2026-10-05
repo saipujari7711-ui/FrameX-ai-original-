@@ -1,6 +1,6 @@
 package ai.framex.app.auth
 
-import androidx.activity.compose.LocalActivity
+import android.app.Activity
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.IntentSenderRequest
 import androidx.activity.result.contract.ActivityResultContracts
@@ -19,8 +19,8 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 
 @Composable
-fun FrameXAuthGate(context: android.content.Context) {
-    val activity = checkNotNull(LocalActivity.current)
+fun FrameXAuthGate(activity: Activity) {
+    val context = activity.applicationContext
     val auth = remember { GoogleAuthManager(context) }
     val drive = remember { GoogleDriveService(context.contentResolver) }
     val scope = rememberCoroutineScope()
