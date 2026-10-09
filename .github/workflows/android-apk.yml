@@ -52,12 +52,59 @@ jobs:
       - name: Build FRAME X AI APK
         run: gradle clean assembleDebug assembleRelease lintDebug --no-daemon --stacktrace
 
-      - name: Verify APK exists
+      - name: Verify APK exists and record metadata
         run: |
           test -f app/build/outputs/apk/debug/app-debug.apk
           test -f app/build/outputs/apk/release/app-release-unsigned.apk
           ls -lh app/build/outputs/apk/debug/app-debug.apk
           ls -lh app/build/outputs/apk/release/app-release-unsigned.apk
+          sha256sum app/build/outputs/apk/debug/app-debug.apk app/build/outputs/apk/release/app-release-unsigned.apk | tee apk-sha256.txt
+          {
+            echo "Source commit: $GITHUB_SHA"
+            echo "Workflow run: $GITHUB_RUN_ID"
+            echo "Application ID: ai.framex.app"
+            echo "Variant: debug (installable test build); release (unsigned, not installable as a normal release)"
+          } | tee build-metadata.txt
+
+      - name: Install and smoke-test debug APK on Android emulator
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 35
+          target: google_apis
+          arch: x86_64
+          profile: pixel_2
+          script: |
+            set -eu
+            APK="apps/android/app/build/outputs/apk/debug/app-debug.apk"
+            adb install -r "$APK"
+            adb logcat -c
+            adb shell monkey -p ai.framex.app 1
+            sleep 8
+            if ! adb shell pidof ai.framex.app >/dev/null; then
+              adb logcat -d > apps/android/app/build/outputs/apk/debug/emulator-logcat.txt
+              if grep -E "FATAL EXCEPTION|Process: ai.framex.app" apps/android/app/build/outputs/apk/debug/emulator-logcat.txt; then
+                echo "Application process did not remain alive after launch."
+              fi
+              exit 1
+            fi
+            adb shell dumpsys activity activities > apps/android/app/build/outputs/apk/debug/emulator-activities.txt
+            adb logcat -d > apps/android/app/build/outputs/apk/debug/emulator-logcat.txt
+            if grep -E "FATAL EXCEPTION|Process: ai.framex.app" apps/android/app/build/outputs/apk/debug/emulator-logcat.txt; then
+              echo "A fatal application exception was detected in startup logs."
+              exit 1
+            fi
+            echo "Emulator install and startup process smoke test passed."
+
+      - name: Upload runtime diagnostics on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: FRAME-X-AI-runtime-diagnostics
+          path: |
+            apps/android/app/build/outputs/apk/debug/emulator-logcat.txt
+            apps/android/app/build/outputs/apk/debug/emulator-activities.txt
+          if-no-files-found: ignore
+          retention-days: 14
 
       - name: Upload FRAME X AI APK
         uses: actions/upload-artifact@v4
