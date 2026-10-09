@@ -63,16 +63,31 @@ fun FrameXAuthGate(activity: Activity) {
         error = null
         auth.authorization(activity).addOnSuccessListener { result ->
             if (result.hasResolution()) {
-                busy = false
-                authResultLauncher.launch(
-                    IntentSenderRequest.Builder(result.pendingIntent!!.intentSender).build()
-                )
+                val pendingIntent = result.pendingIntent
+                if (pendingIntent == null) {
+                    busy = false
+                    error = "Google requested additional authorization, but no authorization action was provided. Please retry."
+                    initialized = true
+                } else {
+                    busy = false
+                    authResultLauncher.launch(
+                        IntentSenderRequest.Builder(pendingIntent.intentSender).build()
+                    )
+                }
             } else {
-                result.accessToken?.let(::finishAuthorization)
+                val accessToken = result.accessToken?.takeIf { it.isNotBlank() }
+                if (accessToken != null) {
+                    finishAuthorization(accessToken)
+                } else {
+                    busy = false
+                    error = "Google did not provide a Drive access token. Please retry."
+                    initialized = true
+                }
             }
         }.addOnFailureListener {
             busy = false
             error = it.message ?: "Drive authorization failed."
+            initialized = true
         }
     }
 
